@@ -11,7 +11,7 @@ for (int day = 1; day <= 256; day++)
 {
     int count = ages.Count;
 
-    for (int i = 0; i < count; i++)
+    Parallel.For(0, count, i =>
     {
         if (--ages[i] == -1)
         {
