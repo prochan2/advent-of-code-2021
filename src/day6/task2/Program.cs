@@ -5,29 +5,68 @@ using System.Linq;
 using System.Threading.Tasks;
 using static System.Console;
 
-var ages = File.ReadAllText(@"..\..\..\input\input.txt").Split(',').Select(n => long.Parse(n)).ToList();
+const long firstInitialAge = 8;
+const long nextInitialAge = 6;
+const long initialLifespan = 18;
 
-for (int day = 1; day <= 256; day++)
+long[,] offspringCache = new long[firstInitialAge + 1, initialLifespan + 1];
+
+for (int i = 0; i < offspringCache.GetLength(0); i++)
 {
-    int count = ages.Count;
-
-    Parallel.For(0, count, i =>
+    for (int j = 0; j < offspringCache.GetLength(1); j++)
     {
-        if (--ages[i] == -1)
+        offspringCache[i, j] = -1;
+    }
+}
+
+long GetNumberOfOffspring(long age, long lifespan)
+{
+    long offspring = offspringCache[age, lifespan];
+
+    if (offspring >= 0)
+    {
+        return offspring;
+    }
+
+    offspring = 0;
+
+    for (long day = 1; day <= lifespan; day++)
+    {
+        if (--age == -1)
         {
-            ages[i] = 6;
-            ages.Add(8);
+            offspring += GetNumberOfOffspring(firstInitialAge, lifespan - day) + 1;
+            age = nextInitialAge;
         }
     }
 
-    Write($"Day {day}: ");
+    offspringCache[age, lifespan] = offspring;
 
-    //foreach (var age in ages)
-    //{
-    //    Write($"{age}, ");
-    //}
-
-    //WriteLine();
+    return offspring;
 }
 
-WriteLine(ages.Count);
+var result =
+    File.ReadAllText(@"..\..\..\input\sinput.txt")
+    //"3"
+    .Split(',')
+    .Select(n => long.Parse(n))
+    .Sum(age =>
+    {
+        return GetNumberOfOffspring(age, initialLifespan) + 1;
+    });
+
+WriteLine(result);
+
+//class Lanternfish
+//{
+//    public long Age { get; }
+
+//    public long Lifespan { get; }
+
+//    public IEnumerable<Lanternfish> Reproduce()
+//    {
+//        for (int i = 0; i < length; i++)
+//        {
+
+//        }
+//    }
+//};
